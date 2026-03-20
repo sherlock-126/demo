@@ -76,3 +76,25 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Next.js
+/frontend/node_modules
+/frontend/.next
+/frontend/out
+/frontend/.DS_Store
+/frontend/*.log
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/.vercel
+/frontend/.env*.local
+
+# FastAPI
+/backend/__pycache__
+/backend/*.pyc
+/backend/.pytest_cache
+/backend/*.db
+
+# Docker
+.auth/
+*.db-journal
