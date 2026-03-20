@@ -76,3 +76,12 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Docker
+.env.docker
+nginx/ssl/
+backups/
+*.tar.gz
+
+# Authentication tokens
+.auth/

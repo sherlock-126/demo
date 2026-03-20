@@ -1,0 +1,180 @@
+version: '3.8'
+
+# Networks
+networks:
+  demo-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Shared volumes
+volumes:
+  node_modules_frontend:
+  node_modules_backend:
+
+services:
+  # Streamlit Dashboard Service
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.streamlit
+    image: demo-streamlit:latest
+    container_name: demo-streamlit
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai_api}
+      - CHATGPT_CLI_COMMAND=${CHATGPT_CLI_COMMAND:-/usr/local/bin/chatgpt-cli}
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+      - PYTHONPATH=/app
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      # Application code (for development hot reload)
+      - ./streamlit:/app/streamlit:ro
+      - ./content_generator:/app/content_generator:ro
+      - ./layout_generator:/app/layout_generator:ro
+      - ./video_assembly:/app/video_assembly:ro
+      # Shared data volumes
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./videos:/app/videos
+      - ./audio:/app/audio:ro
+      - ./assets:/app/assets:ro
+      - ./.auth:/app/.auth
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+    networks:
+      - demo-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=streamlit,env=development"
+
+  # FastAPI Backend Service (prepared for future implementation)
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    image: demo-backend:latest
+    container_name: demo-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai_api}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///./data/app.db}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3001,http://localhost:8501}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - PYTHONPATH=/app
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      # Application code
+      - ./backend:/app/backend:ro
+      - ./content_generator:/app/content_generator:ro
+      - ./layout_generator:/app/layout_generator:ro
+      - ./video_assembly:/app/video_assembly:ro
+      # Shared data volumes
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./videos:/app/videos
+      - ./audio:/app/audio:ro
+      - ./assets:/app/assets:ro
+      - ./.auth:/app/.auth
+      - ./logs:/app/logs
+    networks:
+      - demo-network
+    depends_on:
+      - streamlit
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=backend,env=development"
+    profiles:
+      - full  # Only start when using --profile full
+
+  # Next.js Frontend Service (prepared for future implementation)
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    image: demo-frontend:latest
+    container_name: demo-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
+      - NODE_ENV=${NODE_ENV:-development}
+    volumes:
+      # Application code (with node_modules as named volume for performance)
+      - ./frontend:/app:ro
+      - node_modules_frontend:/app/node_modules
+      # Shared data volumes (read-only for frontend)
+      - ./output:/app/public/output:ro
+      - ./videos:/app/public/videos:ro
+    networks:
+      - demo-network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=frontend,env=development"
+    profiles:
+      - full  # Only start when using --profile full

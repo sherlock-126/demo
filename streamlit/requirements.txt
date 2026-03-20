@@ -1,0 +1,26 @@
+# Core framework
+streamlit==1.31.0
+streamlit-extras==0.3.6
+
+# UI Components
+streamlit-image-select==0.6.0
+streamlit-card==0.0.5
+
+# Media handling
+opencv-python-headless==4.9.0.80
+imageio==2.34.0
+python-magic==0.4.27
+
+# Utilities
+humanize==4.9.0
+python-slugify==8.0.0
+watchdog==3.0.0
+tqdm==4.65.0
+
+# From existing project (already installed)
+# Pillow==10.2.0
+# pydantic==2.5.0
+# click==8.1.0
+# PyYAML==6.0.1
+# python-dotenv==1.0.0
+# openai==1.30.0

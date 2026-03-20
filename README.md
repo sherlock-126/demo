@@ -27,6 +27,31 @@ AI-powered system for generating TikTok educational content about parenting, fea
 
 ## Installation
 
+### Option 1: Docker Deployment (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/sherlock-126/demo.git
+cd demo
+
+# Configure environment
+cp .env.docker .env
+# Edit .env with your OPENAI_API_KEY
+
+# Deploy with Docker Compose
+./scripts/deploy.sh deploy dev
+
+# Access the dashboard
+open http://localhost:8501
+```
+
+For production deployment with all services:
+```bash
+./scripts/deploy.sh deploy prod
+```
+
+### Option 2: Local Installation
+
 ```bash
 # Clone repository
 git clone https://github.com/sherlock-126/demo.git
@@ -178,8 +203,55 @@ demo/
 ├── audio/                # Background music files
 ├── output/               # Generated images
 ├── videos/               # Generated videos
-└── examples/            # Example scripts
+├── examples/            # Example scripts
+├── docker/              # Docker configuration files
+├── nginx/               # Nginx reverse proxy config
+├── scripts/             # Deployment and utility scripts
+└── docs/                # Documentation
 ```
+
+## Docker Deployment
+
+### Services
+
+The system runs three containerized services:
+- **Streamlit Dashboard** (Port 8501): Web UI for content generation
+- **FastAPI Backend** (Port 8000): REST API and WebSocket support
+- **Next.js Frontend** (Port 3001): Modern dashboard interface
+
+### Resource Limits
+
+Optimized for Windows Hyper-V/WSL2:
+- Each container: 0.5 CPU, 2GB RAM
+- Total requirement: 8GB RAM minimum
+
+### Management Commands
+
+```bash
+# Start services
+./scripts/deploy.sh deploy dev
+
+# Stop services
+./scripts/deploy.sh stop
+
+# View logs
+./scripts/deploy.sh logs streamlit
+
+# Backup data
+./scripts/backup.sh backup
+
+# Monitor resources
+docker stats
+```
+
+### Nginx Production Setup
+
+For production deployment with HTTPS:
+1. Configure domain in `nginx/sites-available/demo.conf`
+2. Install SSL certificates
+3. Deploy with: `./scripts/deploy.sh deploy prod`
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions.
 
 ## Development
 
