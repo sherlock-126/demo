@@ -10,8 +10,17 @@ from ..models import FFmpegCommand, VideoConfig
 class FFmpegCommander:
     """Builds FFmpeg commands for various operations"""
 
-    def __init__(self, config: VideoConfig):
+    def __init__(self, config: VideoConfig, ffmpeg_path: Optional[str] = None):
         self.config = config
+        self.ffmpeg_path = ffmpeg_path or self._get_ffmpeg_path() or 'ffmpeg'
+
+    def _get_ffmpeg_path(self) -> Optional[str]:
+        """Get FFmpeg path from imageio if available"""
+        try:
+            import imageio_ffmpeg
+            return imageio_ffmpeg.get_ffmpeg_exe()
+        except:
+            return None
 
     def build_slideshow_command(
         self,
@@ -37,7 +46,7 @@ class FFmpegCommander:
         self._create_concat_file(image_files, concat_file)
 
         # Base command
-        cmd = ['ffmpeg', '-y']  # -y for overwrite
+        cmd = [self.ffmpeg_path, '-y']  # -y for overwrite
 
         # Build filter complex for slideshow with transitions
         filter_parts = []
@@ -66,7 +75,7 @@ class FFmpegCommander:
         # Add transitions between images
         if len(scaled_inputs) > 1 and self.config.transitions.type == 'fade':
             # Build transition chain
-            transition_duration = self.config.transitions.transition_duration
+            transition_duration = self.config.timing.transition_duration
             offset = self.config.timing.duration_per_slide - transition_duration
 
             # Start with first video
@@ -95,7 +104,7 @@ class FFmpegCommander:
             # Calculate video duration
             total_duration = len(image_files) * self.config.timing.duration_per_slide
             if self.config.transitions.type == 'fade':
-                total_duration -= (len(image_files) - 1) * self.config.transitions.transition_duration
+                total_duration -= (len(image_files) - 1) * self.config.timing.transition_duration
 
             # Add audio filters
             audio_filters = []
@@ -175,7 +184,7 @@ class FFmpegCommander:
             FFmpegCommand object
         """
         cmd = [
-            'ffmpeg', '-y',
+            self.ffmpeg_path, '-y',
             '-ss', str(timestamp),
             '-i', video_path,
             '-vframes', '1',
