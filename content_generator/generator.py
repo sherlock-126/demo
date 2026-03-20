@@ -5,7 +5,7 @@ Main script generator class that orchestrates the content generation
 import time
 from typing import Optional, Dict, Any
 
-from .openai_client import OpenAIClient
+from .llm_providers import get_llm_provider, LLMProviderError
 from .prompt_builder import PromptBuilder
 from .validator import Validator
 from .storage import StorageHandler
@@ -24,16 +24,20 @@ class ScriptGenerator:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        storage_dir: Optional[str] = None
+        storage_dir: Optional[str] = None,
+        provider_type: Optional[str] = None
     ):
         """
         Initialize script generator
 
         Args:
-            api_key: Optional OpenAI API key
+            api_key: Optional API key (for backward compatibility)
             storage_dir: Optional directory for storing scripts
+            provider_type: Optional provider type override
         """
-        self.openai_client = OpenAIClient(api_key)
+        # Get LLM provider (uses environment variables by default)
+        provider_config = {"api_key": api_key} if api_key else None
+        self.llm_provider = get_llm_provider(provider_type, provider_config)
         self.prompt_builder = PromptBuilder()
         self.validator = Validator()
         self.storage = StorageHandler(storage_dir) if storage_dir else StorageHandler()
@@ -81,14 +85,14 @@ class ScriptGenerator:
             )
 
             # Generate completion
-            response = self.openai_client.generate_completion(
+            response = self.llm_provider.generate_completion(
                 system_prompt=prompts["system_prompt"],
                 user_prompt=prompts["user_prompt"],
                 temperature=temperature
             )
 
             # Validate response structure
-            self.openai_client.validate_response(response)
+            self.llm_provider.validate_response(response)
 
             # Parse and validate output
             script = self.validator.validate_script_output(response["content"])
@@ -108,6 +112,9 @@ class ScriptGenerator:
 
             return script
 
+        except LLMProviderError as e:
+            log_generation_error(topic, f"Provider error: {e.message}")
+            raise
         except Exception as e:
             log_generation_error(topic, str(e))
             raise

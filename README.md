@@ -5,7 +5,13 @@ AI-powered system for generating TikTok educational content about parenting, fea
 ## Features
 
 ### 1. Content Generator
-- Uses OpenAI GPT-4 to transform parenting topics into "Right vs Wrong" comparison scripts
+- **Multiple LLM Provider Support:**
+  - OpenAI API (official, paid)
+  - CLI-based ChatGPT tools
+  - RevChatGPT (browser automation)
+  - Mock provider for testing
+- Provider switching via environment variables
+- Transforms parenting topics into "Right vs Wrong" comparison scripts
 - Generates structured JSON with titles, descriptions, and slide content
 - Supports Vietnamese and English languages
 - CLI and Python API interfaces
@@ -127,9 +133,37 @@ print(f"Video created: {video_result.output_path}")
 ## Configuration
 
 ### Content Generator
-Set your OpenAI API key in `.env`:
-```
+
+#### LLM Provider Selection
+Choose your LLM provider in `.env`:
+```bash
+# Options: openai_api, cli_chatgpt, revchatgpt, mock
+LLM_PROVIDER=openai_api
+
+# For OpenAI API
 OPENAI_API_KEY=your-api-key-here
+OPENAI_MODEL=gpt-4-turbo-preview
+
+# For CLI-based providers
+CHATGPT_CLI_COMMAND=chatgpt-cli
+CLI_TIMEOUT=60
+
+# For RevChatGPT
+REVCHATGPT_ACCESS_TOKEN=your-token
+REVCHATGPT_SESSION_TOKEN=your-session
+```
+
+#### Using Different Providers
+
+```python
+from content_generator.llm_providers import get_llm_provider
+
+# Automatically uses LLM_PROVIDER from environment
+provider = get_llm_provider()
+
+# Or specify explicitly
+provider = get_llm_provider("mock")  # For testing
+provider = get_llm_provider("openai_api")  # Force OpenAI
 ```
 
 ### Layout Generator

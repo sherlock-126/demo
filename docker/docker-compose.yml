@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  content-generator:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: content-generator-container
+    environment:
+      # LLM Provider configuration (defaults to OpenAI)
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai_api}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4-turbo-preview}
+
+      # CLI provider settings
+      - CHATGPT_CLI_COMMAND=${CHATGPT_CLI_COMMAND:-chatgpt-cli}
+      - CLI_TIMEOUT=${CLI_TIMEOUT:-60}
+
+      # General settings
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - TIMEOUT_SECONDS=${TIMEOUT_SECONDS:-30}
+      - MAX_RETRIES=${MAX_RETRIES:-3}
+
+    volumes:
+      # Persistent data
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./videos:/app/videos
+
+      # Auth tokens persistence
+      - auth_data:/app/.auth
+
+      # Config files
+      - ../config:/app/config:ro
+      - ../templates:/app/templates:ro
+
+    stdin_open: true
+    tty: true
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+volumes:
+  auth_data:
+    driver: local
