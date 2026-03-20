@@ -1,0 +1,28 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 30                    # Lower FPS for faster encoding
+
+timing:
+  duration_per_slide: 2.5
+  transition_duration: 0.3   # Shorter transitions
+  min_video_duration: 10.0
+  max_video_duration: 60.0
+
+audio:
+  fade_in_duration: 0.5
+  fade_out_duration: 0.5
+  normalize: false           # Skip normalization for speed
+  target_loudness: -14
+
+encoding:
+  video_codec: libx264
+  audio_codec: aac
+  preset: ultrafast          # Fastest encoding
+  crf: 28                    # Lower quality for speed
+  pixel_format: yuv420p
+  bitrate: 5M                # Lower bitrate
+
+transitions:
+  type: fade
+  easing: linear             # Simple linear transition

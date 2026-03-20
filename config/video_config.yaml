@@ -1,0 +1,28 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 60
+
+timing:
+  duration_per_slide: 3.0    # seconds each image is shown
+  transition_duration: 0.5   # fade between images
+  min_video_duration: 15.0   # minimum total duration
+  max_video_duration: 60.0   # TikTok limit
+
+audio:
+  fade_in_duration: 1.0
+  fade_out_duration: 1.0
+  normalize: true            # normalize audio levels
+  target_loudness: -14       # LUFS for social media
+
+encoding:
+  video_codec: libx264
+  audio_codec: aac
+  preset: medium             # ultrafast, fast, medium, slow, veryslow
+  crf: 23                    # quality (18-28 recommended)
+  pixel_format: yuv420p      # compatibility
+  bitrate: 8M                # target bitrate
+
+transitions:
+  type: fade                 # fade, dissolve, wipe, none
+  easing: ease-in-out        # linear, ease-in, ease-out, ease-in-out

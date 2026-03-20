@@ -50,11 +50,20 @@ cache/
 
 # Output files
 output/
+videos/
+carousel/
+temp/
 *.png
 *.jpg
 *.jpeg
 *.gif
 *.mp4
+*.mp3
+*.wav
+*.aac
+!assets/**/*.png
+!assets/**/*.jpg
+!tests/fixtures/**/*
 
 # Test coverage
 htmlcov/
