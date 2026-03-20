@@ -17,6 +17,14 @@ AI-powered system for generating TikTok educational content about parenting, fea
 - Automatic icon placement (X/✓) and logo watermarking
 - Batch processing capabilities
 
+### 3. Video Assembly Pipeline
+- Creates TikTok-ready videos from images using FFmpeg
+- Automatic slideshow generation with smooth transitions
+- Background music support with auto-trim/loop
+- Configurable timing and encoding settings
+- Carousel export for swipeable posts
+- Output in MP4 format (1080x1920, 60fps)
+
 ## Installation
 
 ```bash
@@ -29,6 +37,14 @@ pip install -r requirements.txt
 
 # Download fonts and create assets
 bash scripts/download_assets.sh
+
+# Install FFmpeg (required for video generation)
+# Ubuntu/Debian:
+sudo apt-get install ffmpeg
+# macOS:
+brew install ffmpeg
+# Or use the helper script:
+bash scripts/install_ffmpeg.sh
 
 # Install package
 pip install -e .
@@ -59,6 +75,25 @@ layout-generator generate examples/sample_output.json
 layout-generator batch scripts/ --output-dir output/
 ```
 
+### Generate Videos
+
+```bash
+# Generate video from images
+python -m video_assembly generate output/ --output video.mp4 --music audio/background.mp3
+
+# Generate video with custom timing
+python -m video_assembly generate output/ --duration-per-slide 4 --transition 0.8
+
+# Preview without audio (faster)
+python -m video_assembly preview output/
+
+# Generate carousel frames
+python -m video_assembly carousel output/ --output-dir carousel/
+
+# Validate FFmpeg installation
+python -m video_assembly validate
+```
+
 ### Python API Usage
 
 ```python
@@ -77,6 +112,16 @@ from layout_generator import LayoutGenerator
 layout_gen = LayoutGenerator()
 result = layout_gen.generate_from_script(script)
 print(f"Generated {len(result.images)} images")
+
+# Generate video
+from video_assembly import create_video
+
+video_result = create_video(
+    image_dir='output/',
+    music_path='audio/background.mp3',
+    duration_per_slide=3.0
+)
+print(f"Video created: {video_result.output_path}")
 ```
 
 ## Configuration
@@ -117,13 +162,22 @@ demo/
 │   ├── generator.py      # Main layout generator
 │   ├── renderer.py       # Slide renderer
 │   └── components/       # Rendering components
+├── video_assembly/        # Video generation module
+│   ├── assembler.py      # Main video assembler
+│   ├── ffmpeg/          # FFmpeg integration
+│   ├── processors/       # Media processors
+│   └── utils/           # Utilities
 ├── config/               # Configuration files
 │   ├── default.yaml      # Default styling
+│   ├── video_config.yaml # Video settings
 │   └── minimal.yaml      # Minimal style variant
 ├── assets/               # Static assets
 │   ├── fonts/           # Vietnamese-supporting fonts
 │   ├── icons/           # X/✓ icons
 │   └── logo/            # Brand logos
+├── audio/                # Background music files
+├── output/               # Generated images
+├── videos/               # Generated videos
 └── examples/            # Example scripts
 ```
 
