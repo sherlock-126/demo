@@ -37,14 +37,10 @@ class FFmpegValidator:
                 recoverable=False
             )
 
-        # Check FFprobe executable
+        # Check FFprobe executable (optional - warn if not found)
         if not self._check_executable('ffprobe'):
-            raise VideoError(
-                error_type='ffprobe_not_found',
-                message='FFprobe is not installed or not in PATH',
-                suggestion='FFprobe is usually installed with FFmpeg',
-                recoverable=False
-            )
+            print("Warning: FFprobe not found. Some features may be limited.")
+            # Don't fail, as basic video generation can work without ffprobe
 
         # Check version
         self._check_version()
@@ -59,6 +55,24 @@ class FFmpegValidator:
 
     def _check_executable(self, name: str) -> bool:
         """Check if executable exists"""
+        # Try imageio_ffmpeg first
+        if name == 'ffmpeg':
+            try:
+                import imageio_ffmpeg
+                ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+                result = subprocess.run(
+                    [ffmpeg_path, '-version'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0:
+                    self.ffmpeg_path = ffmpeg_path
+                    return True
+            except:
+                pass
+
+        # Try system path
         try:
             result = subprocess.run(
                 [name, '-version'],
@@ -80,7 +94,7 @@ class FFmpegValidator:
         """Extract FFmpeg version"""
         try:
             result = subprocess.run(
-                ['ffmpeg', '-version'],
+                [self.ffmpeg_path or 'ffmpeg', '-version'],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -114,7 +128,7 @@ class FFmpegValidator:
         try:
             # Check video encoders
             result = subprocess.run(
-                ['ffmpeg', '-encoders'],
+                [self.ffmpeg_path or 'ffmpeg', '-encoders'],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -155,7 +169,7 @@ class FFmpegValidator:
 
         try:
             result = subprocess.run(
-                ['ffmpeg', '-filters'],
+                [self.ffmpeg_path or 'ffmpeg', '-filters'],
                 capture_output=True,
                 text=True,
                 timeout=5

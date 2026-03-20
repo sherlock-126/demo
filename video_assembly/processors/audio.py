@@ -14,9 +14,18 @@ class AudioProcessor:
 
     SUPPORTED_FORMATS = {'.mp3', '.wav', '.aac', '.m4a', '.ogg', '.flac'}
 
-    def __init__(self):
+    def __init__(self, ffmpeg_path: Optional[str] = None):
         """Initialize audio processor"""
-        self.executor = FFmpegExecutor()
+        self.ffmpeg_path = ffmpeg_path or self._get_ffmpeg_path() or 'ffmpeg'
+        self.executor = FFmpegExecutor(self.ffmpeg_path)
+
+    def _get_ffmpeg_path(self) -> Optional[str]:
+        """Get FFmpeg path from imageio if available"""
+        try:
+            import imageio_ffmpeg
+            return imageio_ffmpeg.get_ffmpeg_exe()
+        except:
+            return None
 
     def scan_audio_directory(self, directory: str) -> List[str]:
         """
@@ -123,7 +132,7 @@ class AudioProcessor:
         audio_duration = self.get_duration(audio_path)
 
         # Build FFmpeg command for audio processing
-        cmd = ['ffmpeg', '-y', '-i', audio_path]
+        cmd = [self.ffmpeg_path, '-y', '-i', audio_path]
 
         # Build filter chain
         filters = []

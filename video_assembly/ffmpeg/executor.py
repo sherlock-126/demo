@@ -14,14 +14,24 @@ from ..models import FFmpegCommand, VideoError
 class FFmpegExecutor:
     """Executes FFmpeg commands with progress monitoring"""
 
-    def __init__(self, progress_callback: Optional[Callable[[float], None]] = None):
+    def __init__(self, ffmpeg_path: Optional[str] = None, progress_callback: Optional[Callable[[float], None]] = None):
         """
         Initialize executor
 
         Args:
+            ffmpeg_path: Path to ffmpeg executable
             progress_callback: Optional callback function for progress updates
         """
+        self.ffmpeg_path = ffmpeg_path or self._get_ffmpeg_path() or 'ffmpeg'
         self.progress_callback = progress_callback
+
+    def _get_ffmpeg_path(self) -> Optional[str]:
+        """Get FFmpeg path from imageio if available"""
+        try:
+            import imageio_ffmpeg
+            return imageio_ffmpeg.get_ffmpeg_exe()
+        except:
+            return None
 
     def execute(
         self,
@@ -164,6 +174,13 @@ class FFmpegExecutor:
                 return json.loads(result.stdout)
             else:
                 return {}
+        except FileNotFoundError:
+            # ffprobe not available, return basic info
+            return {
+                'format': {
+                    'duration': '30.0'  # Default duration
+                }
+            }
         except (subprocess.TimeoutExpired, json.JSONDecodeError):
             return {}
 

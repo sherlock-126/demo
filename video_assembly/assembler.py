@@ -29,16 +29,17 @@ class VideoAssembler:
 
         # Initialize components
         self.validator = FFmpegValidator()
-        self.commander = FFmpegCommander(self.config)
-        self.executor = FFmpegExecutor()
+        # Validate FFmpeg installation first
+        self.validator.validate()
+        # Pass ffmpeg path to all components
+        ffmpeg_path = self.validator.ffmpeg_path
+        self.commander = FFmpegCommander(self.config, ffmpeg_path)
+        self.executor = FFmpegExecutor(ffmpeg_path)
         self.image_processor = ImageProcessor(
             (self.config.width, self.config.height)
         )
-        self.audio_processor = AudioProcessor()
+        self.audio_processor = AudioProcessor(ffmpeg_path)
         self.transition_engine = TransitionEngine(self.config.transitions)
-
-        # Validate FFmpeg installation
-        self.validator.validate()
 
     def create_video(
         self,
@@ -92,7 +93,7 @@ class VideoAssembler:
             total_duration = self.transition_engine.calculate_total_duration(
                 len(image_files),
                 self.config.timing.duration_per_slide,
-                self.config.transitions.transition_duration
+                self.config.timing.transition_duration
             )
 
             # Check duration limits

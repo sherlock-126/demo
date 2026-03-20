@@ -146,7 +146,7 @@ class FilterBuilder:
 
         # Add transitions if configured
         if config.transitions.type == 'fade' and num_images > 1:
-            transition_duration = config.transitions.transition_duration
+            transition_duration = config.timing.transition_duration
             slide_duration = config.timing.duration_per_slide
 
             # Chain transitions

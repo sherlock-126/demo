@@ -26,25 +26,35 @@ class MediaInfo:
             return {}
 
         try:
-            cmd = [
-                'ffprobe',
-                '-v', 'quiet',
-                '-print_format', 'json',
-                '-show_format',
-                '-show_streams',
-                video_path
-            ]
+            # Try to use ffprobe if available
+            try:
+                cmd = [
+                    'ffprobe',
+                    '-v', 'quiet',
+                    '-print_format', 'json',
+                    '-show_format',
+                    '-show_streams',
+                    video_path
+                ]
 
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
 
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                return MediaInfo._parse_video_info(data)
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)
+                    return MediaInfo._parse_video_info(data)
+            except FileNotFoundError:
+                # ffprobe not found, return basic info
+                file_stats = Path(video_path).stat()
+                return {
+                    'file_size': file_stats.st_size,
+                    'path': str(video_path),
+                    'format': Path(video_path).suffix[1:]
+                }
         except Exception:
             pass
 
@@ -90,25 +100,36 @@ class MediaInfo:
             return {}
 
         try:
-            cmd = [
-                'ffprobe',
-                '-v', 'quiet',
-                '-print_format', 'json',
-                '-show_format',
-                '-show_streams',
-                audio_path
-            ]
+            # Try to use ffprobe if available
+            try:
+                cmd = [
+                    'ffprobe',
+                    '-v', 'quiet',
+                    '-print_format', 'json',
+                    '-show_format',
+                    '-show_streams',
+                    audio_path
+                ]
 
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
 
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                return MediaInfo._parse_audio_info(data)
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)
+                    return MediaInfo._parse_audio_info(data)
+            except FileNotFoundError:
+                # ffprobe not found, return basic info
+                file_stats = Path(audio_path).stat()
+                return {
+                    'file_size': file_stats.st_size,
+                    'path': str(audio_path),
+                    'format': Path(audio_path).suffix[1:],
+                    'duration': 30.0  # Default duration estimate
+                }
         except Exception:
             pass
 

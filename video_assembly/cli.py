@@ -47,7 +47,7 @@ def generate(
 
         # Apply command line overrides
         video_config.timing.duration_per_slide = duration_per_slide
-        video_config.transitions.transition_duration = transition
+        video_config.timing.transition_duration = transition
 
         # Create API instance
         api = VideoAPI(video_config)
