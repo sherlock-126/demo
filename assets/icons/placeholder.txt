@@ -1,0 +1,2 @@
+Placeholder for icons.
+Run scripts/download_assets.sh to generate actual icons.
