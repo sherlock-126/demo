@@ -48,6 +48,14 @@ logs/
 cache/
 *.log
 
+# Output files
+output/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+
 # Test coverage
 htmlcov/
 .coverage

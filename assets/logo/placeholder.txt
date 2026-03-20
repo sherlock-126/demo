@@ -1,0 +1,2 @@
+Placeholder for logo.
+Run scripts/download_assets.sh to generate placeholder logo.
