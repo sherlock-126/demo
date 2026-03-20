@@ -1,0 +1,92 @@
+# Production-ready Nginx with security enhancements
+FROM nginx:1.24-alpine
+
+# Install security and monitoring tools
+RUN apk add --no-cache \
+    certbot \
+    certbot-nginx \
+    curl \
+    openssl \
+    git \
+    wget \
+    build-base \
+    pcre-dev \
+    zlib-dev \
+    libxml2-dev \
+    libxslt-dev \
+    gd-dev \
+    geoip-dev \
+    linux-headers \
+    libressl-dev \
+    bash \
+    ca-certificates \
+    vim
+
+# Install ModSecurity dependencies
+RUN apk add --no-cache \
+    yajl \
+    yajl-dev \
+    libstdc++ \
+    libmaxminddb \
+    libmaxminddb-dev \
+    lmdb-dev \
+    libcurl \
+    lua5.1-dev
+
+# Download and install ModSecurity
+WORKDIR /tmp
+RUN wget https://github.com/SpiderLabs/ModSecurity/releases/download/v3.0.8/modsecurity-v3.0.8.tar.gz && \
+    tar -xzf modsecurity-v3.0.8.tar.gz && \
+    cd modsecurity-v3.0.8 && \
+    ./build.sh && \
+    ./configure --with-yajl && \
+    make && \
+    make install
+
+# Install ModSecurity-nginx connector
+RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git && \
+    cd /tmp && \
+    wget http://nginx.org/download/nginx-1.24.0.tar.gz && \
+    tar -xzf nginx-1.24.0.tar.gz && \
+    cd nginx-1.24.0 && \
+    ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx && \
+    make modules && \
+    cp objs/ngx_http_modsecurity_module.so /usr/lib/nginx/modules/
+
+# Install OWASP ModSecurity Core Rule Set
+RUN git clone https://github.com/coreruleset/coreruleset /etc/nginx/modsec/crs && \
+    cp /etc/nginx/modsec/crs/crs-setup.conf.example /etc/nginx/modsec/crs/crs-setup.conf
+
+# Install Prometheus nginx exporter
+RUN wget https://github.com/nginxinc/nginx-prometheus-exporter/releases/download/v0.11.0/nginx-prometheus-exporter_0.11.0_linux_amd64.tar.gz && \
+    tar -xzf nginx-prometheus-exporter_0.11.0_linux_amd64.tar.gz && \
+    mv nginx-prometheus-exporter /usr/local/bin/ && \
+    chmod +x /usr/local/bin/nginx-prometheus-exporter
+
+# Create nginx user and directories
+RUN addgroup -g 101 -S nginx 2>/dev/null || true && \
+    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx 2>/dev/null || true && \
+    mkdir -p /var/cache/nginx /var/log/nginx /etc/nginx/ssl /usr/share/nginx/html/errors && \
+    chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/ssl
+
+# Copy error pages
+COPY nginx/errors/ /usr/share/nginx/html/errors/
+
+# Create health check script
+RUN echo '#!/bin/sh' > /usr/local/bin/health-check && \
+    echo 'nginx -t 2>/dev/null && curl -f http://localhost/health 2>/dev/null && exit 0 || exit 1' >> /usr/local/bin/health-check && \
+    chmod +x /usr/local/bin/health-check
+
+# Clean up
+RUN rm -rf /tmp/* /var/cache/apk/*
+
+# Security: Run as non-root user
+USER nginx
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD /usr/local/bin/health-check
+
+EXPOSE 80 443
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,75 @@
+# Prometheus Configuration
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'demo-monitor'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # Nginx metrics via exporter
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:9113']
+        labels:
+          service: 'nginx'
+    metrics_path: '/metrics'
+
+  # Node exporter for host metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node'
+
+  # Docker metrics
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['docker-exporter:9323']
+        labels:
+          service: 'docker'
+
+  # Application services
+  - job_name: 'streamlit'
+    static_configs:
+      - targets: ['streamlit:8501']
+        labels:
+          service: 'streamlit'
+    metrics_path: '/_stcore/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['backend:8000']
+        labels:
+          service: 'backend'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'frontend'
+    static_configs:
+      - targets: ['frontend:3001']
+        labels:
+          service: 'frontend'
+    metrics_path: '/api/metrics'
+    scrape_interval: 30s
