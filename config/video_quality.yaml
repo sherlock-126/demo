@@ -1,0 +1,28 @@
+video:
+  width: 1080
+  height: 1920
+  fps: 60
+
+timing:
+  duration_per_slide: 4.0    # Longer slides for quality
+  transition_duration: 0.8   # Smoother transitions
+  min_video_duration: 15.0
+  max_video_duration: 60.0
+
+audio:
+  fade_in_duration: 1.5
+  fade_out_duration: 1.5
+  normalize: true
+  target_loudness: -14
+
+encoding:
+  video_codec: libx264
+  audio_codec: aac
+  preset: slow               # Better compression
+  crf: 18                    # Higher quality
+  pixel_format: yuv420p
+  bitrate: 12M               # Higher bitrate for quality
+
+transitions:
+  type: fade
+  easing: ease-in-out        # Smooth easing

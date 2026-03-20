@@ -1,0 +1,43 @@
+layout:
+  width: 1080
+  height: 1920
+  padding: 50
+  split_ratio: 0.5
+
+colors:
+  background:
+    main: "#FFFFFF"
+    wrong: "#FFCDD2"
+    right: "#C8E6C9"
+    divider: "#9E9E9E"
+  text:
+    title: "#1A237E"
+    subtitle: "#3F51B5"
+    label_wrong: "#D32F2F"
+    label_right: "#388E3C"
+    content: "#263238"
+
+fonts:
+  title:
+    path: "assets/fonts/Roboto-Bold.ttf"
+    size: 76
+  subtitle:
+    path: "assets/fonts/Roboto-Medium.ttf"
+    size: 52
+  label:
+    path: "assets/fonts/Roboto-Black.ttf"
+    size: 64
+  text:
+    path: "assets/fonts/Roboto-Medium.ttf"
+    size: 44
+
+icons:
+  wrong: "assets/icons/x-mark.png"
+  right: "assets/icons/check-mark.png"
+  size: 140
+
+logo:
+  path: "assets/logo/placeholder.png"
+  position: "top-right"
+  size: [180, 72]
+  opacity: 1.0

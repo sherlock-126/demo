@@ -1,0 +1,2 @@
+Placeholder for fonts.
+Run scripts/download_assets.sh to download Roboto fonts.
