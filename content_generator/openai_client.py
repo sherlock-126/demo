@@ -10,8 +10,7 @@ from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
-    before_retry
+    retry_if_exception_type
 )
 
 from .config import config
@@ -42,8 +41,7 @@ class OpenAIClient:
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=retry_if_exception_type((Exception,)),
-        before=lambda retry_state: None
+        retry=retry_if_exception_type((Exception,))
     )
     def generate_completion(
         self,
