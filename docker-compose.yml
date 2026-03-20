@@ -1,0 +1,161 @@
+version: '3.8'
+
+services:
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.streamlit
+    container_name: demo-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai_api}
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./videos:/app/videos
+      - ./audio:/app/audio
+      - ./assets:/app/assets
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+      - ./cache:/app/cache
+    networks:
+      - demo-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 1G
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: demo-app
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai_api}
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./videos:/app/videos
+      - ./audio:/app/audio
+      - ./assets:/app/assets
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+      - ./cache:/app/cache
+      - ./.auth:/app/.auth
+    networks:
+      - demo-net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 1G
+    command: sleep infinity  # Keep container running for CLI usage
+
+  nextjs:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.nextjs
+    container_name: demo-nextjs
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://fastapi:8000
+      - NEXT_PUBLIC_WS_URL=ws://fastapi:8000
+      - NODE_ENV=${NODE_ENV:-development}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - demo-net
+    restart: unless-stopped
+    depends_on:
+      - fastapi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 1G
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.fastapi
+    container_name: demo-fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai_api}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///./data/app.db}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3001}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - PYTHONPATH=/app
+    volumes:
+      - ./backend:/app/backend
+      - ./content_generator:/app/content_generator
+      - ./layout_generator:/app/layout_generator
+      - ./video_assembly:/app/video_assembly
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./videos:/app/videos
+      - ./audio:/app/audio
+      - ./assets:/app/assets
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+      - ./cache:/app/cache
+    networks:
+      - demo-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 1G
+
+networks:
+  demo-net:
+    driver: bridge
+    name: demo-network
