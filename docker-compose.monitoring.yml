@@ -6,6 +6,8 @@ version: '3.8'
 networks:
   monitoring:
     driver: bridge
+  demo-network:
+    external: true
 
 volumes:
   prometheus_data:
