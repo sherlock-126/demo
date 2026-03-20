@@ -1,0 +1,25 @@
+# Core
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.0
+python-multipart==0.0.6
+
+# SSE Support
+sse-starlette==1.8.2
+
+# CORS & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Async Support
+aiofiles==23.2.1
+
+# Environment
+python-dotenv==1.0.0
+
+# Existing project dependencies
+openai==1.30.0
+Pillow==10.2.0
+click==8.1.0
+PyYAML==6.0.1
+tenacity==8.2.2
