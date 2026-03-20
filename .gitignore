@@ -41,6 +41,7 @@ ENV/
 # Environment
 .env
 .env.local
+.env.docker
 
 # Data and logs
 data/
@@ -71,6 +72,10 @@ htmlcov/
 .coverage.*
 .pytest_cache/
 .tox/
+
+# Docker authentication
+.auth/
+docker/auth_scripts/*.token
 
 # MyPy
 .mypy_cache/

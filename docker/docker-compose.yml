@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  app:
+    image: demo-content-generator:latest
+    container_name: demo-app
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        - BUILDKIT_PROGRESS=plain
+
+    # Resource limits for Windows (Hyper-V/WSL2)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+    # Environment variables
+    env_file:
+      - ../.env.docker
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=Asia/Ho_Chi_Minh
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai_api}
+
+    # Volume mounts
+    volumes:
+      # Application data
+      - ../data:/app/data
+      - ../output:/app/output
+      - ../videos:/app/videos
+      - ../audio:/app/audio
+      - ../assets:/app/assets
+
+      # Authentication persistence
+      - auth_data:/app/.auth
+
+      # Logs (optional)
+      - ../logs:/app/logs
+
+      # For development (optional, comment out in production)
+      # - ../content_generator:/app/content_generator
+      # - ../layout_generator:/app/layout_generator
+      # - ../video_assembly:/app/video_assembly
+
+    # Network configuration
+    ports:
+      - "8000:8000"  # For potential web interface
+    networks:
+      - demo-network
+
+    # Keep container running for manual work
+    stdin_open: true
+    tty: true
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Named volumes for persistence
+volumes:
+  auth_data:
+    driver: local
+
+# Network definition
+networks:
+  demo-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
