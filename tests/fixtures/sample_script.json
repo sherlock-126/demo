@@ -1,0 +1,73 @@
+{
+  "topic": "Cách dạy con không la mắng",
+  "main_title": "DẠY CON KHÔNG CẦN LA MẮNG",
+  "subtitle": "Phương pháp kỷ luật tích cực cho bé",
+  "slides": [
+    {
+      "left_side": {
+        "description": "Phụ huynh đang la hét với đứa trẻ đang khóc",
+        "text": "La mắng khi con làm sai",
+        "label": "SAI"
+      },
+      "right_side": {
+        "description": "Phụ huynh bình tĩnh ngồi ngang tầm mắt với con",
+        "text": "Giải thích bình tĩnh lý do",
+        "label": "ĐÚNG"
+      }
+    },
+    {
+      "left_side": {
+        "description": "Đe dọa trẻ bằng hình phạt",
+        "text": "\"Không nghe lời bố mẹ đánh đấy!\"",
+        "label": "SAI"
+      },
+      "right_side": {
+        "description": "Đưa ra lựa chọn và hậu quả rõ ràng",
+        "text": "\"Con có thể chọn: dọn đồ chơi hoặc nghỉ chơi 10 phút\"",
+        "label": "ĐÚNG"
+      }
+    },
+    {
+      "left_side": {
+        "description": "Phớt lờ cảm xúc của trẻ",
+        "text": "\"Đừng khóc nữa, có gì đâu mà khóc!\"",
+        "label": "SAI"
+      },
+      "right_side": {
+        "description": "Thừa nhận và đồng cảm với cảm xúc",
+        "text": "\"Mẹ hiểu con đang buồn vì không được xem phim\"",
+        "label": "ĐÚNG"
+      }
+    },
+    {
+      "left_side": {
+        "description": "So sánh con với người khác",
+        "text": "\"Bạn Minh ngoan hơn con nhiều!\"",
+        "label": "SAI"
+      },
+      "right_side": {
+        "description": "Khen ngợi tiến bộ của riêng con",
+        "text": "\"Hôm nay con đã tự mặc quần áo, giỏi lắm!\"",
+        "label": "ĐÚNG"
+      }
+    },
+    {
+      "left_side": {
+        "description": "Phạt con ngay lập tức khi tức giận",
+        "text": "Phạt khi đang nóng giận",
+        "label": "SAI"
+      },
+      "right_side": {
+        "description": "Bình tĩnh trước khi xử lý tình huống",
+        "text": "Hít thở sâu, bình tĩnh rồi mới nói chuyện",
+        "label": "ĐÚNG"
+      }
+    }
+  ],
+  "metadata": {
+    "generated_at": "2024-03-20T14:30:00",
+    "model": "gpt-4",
+    "tokens_used": 500,
+    "language": "vi"
+  }
+}
