@@ -1,0 +1,37 @@
+Create a TikTok content script about: "{topic}"
+
+Language: {language}
+Number of slides: {num_slides}
+
+Generate a JSON response with this EXACT structure:
+{{
+    "topic": "{topic}",
+    "main_title": "A bold, attention-grabbing title in {language_name}",
+    "subtitle": "A supporting headline that adds context in {language_name}",
+    "slides": [
+        {{
+            "left_side": {{
+                "description": "Detailed description for image generation showing the WRONG approach. Include: setting, people (parent and child), their expressions, body language, and specific actions. Be very specific about visual elements.",
+                "text": "Short overlay text describing the wrong behavior (max 10 words)",
+                "label": "{wrong_label}"
+            }},
+            "right_side": {{
+                "description": "Detailed description for image generation showing the RIGHT approach. Include: setting, people (parent and child), their expressions, body language, and specific actions. Make it visually different from the wrong side.",
+                "text": "Short overlay text describing the correct behavior (max 10 words)",
+                "label": "{right_label}"
+            }}
+        }}
+    ]
+}}
+
+Requirements:
+1. Create exactly {num_slides} slides
+2. Each slide must show a different aspect or scenario related to the topic
+3. Descriptions should be detailed enough for image generation (50-100 words each)
+4. Text overlays should be short and impactful
+5. Use "{wrong_label}" for wrong side and "{right_label}" for right side
+6. All text content must be in {language_name}
+7. Focus on practical, everyday parenting situations
+8. Make the right approach based on positive parenting principles
+
+Respond ONLY with the JSON object, no additional text.
